@@ -41,11 +41,13 @@ This eliminates the back-and-forth of "which repo?", "which branch?", "what chan
 ```
 mcp-house-rules/
 ├── src/
-│   └── index.ts          # Main MCP server implementation
-├── dist/                 # Compiled JavaScript (generated)
-├── package.json          # Dependencies and scripts
-├── tsconfig.json         # TypeScript configuration
-└── README.md             # This file
+│   └── index.ts                  # Main MCP server implementation
+├── dist/                         # Compiled JavaScript (generated)
+├── package.json                  # Dependencies and scripts
+├── tsconfig.json                 # TypeScript configuration
+├── mcp_Prompts_Screenshot.png    # MCP Inspector prompts demo
+├── mcp_Tools_Screenshot.png      # MCP Inspector tools demo
+└── README.md                     # This file
 ```
 
 ## Components Explained
@@ -91,18 +93,80 @@ You should see a log message on stderr indicating the server is running.
 
 ## Testing with MCP Inspector
 
-Before wiring this into your AI client, test it with the MCP Inspector:
+Before wiring this into your AI client, test it with the MCP Inspector. This helps you debug and verify the server works correctly.
+
+### Step 1: Start MCP Inspector
 
 ```bash
-npm run build
-npx @modelcontextprotocol/inspector node dist/index.js
+npx @modelcontextprotocol/inspector
 ```
 
-This will help you verify:
+This opens a web UI in your browser (usually at `http://localhost:5173`).
+
+### Step 2: Configure the Connection
+
+In the left sidebar of MCP Inspector:
+
+1. **Transport Type**: Select `STDIO`
+2. **Command**: Enter `node`
+3. **Arguments**: Enter the absolute path to your compiled server:
+   ```
+   /Users/sanjay/personalProjects/mcpHouseRules/dist/index.js
+   ```
+
+### Step 3: Connect
+
+Click the **"▷ Connect"** button. You should see:
+- Status changes to "Connected"
+- Server name: `mcp-house-rules`
+- Version: `0.1.0`
+
+### Step 4: Test the Prompts
+
+Go to the **Prompts** tab and select `house_rules`:
+
+![MCP Inspector Prompts](mcp_Prompts_Screenshot.png)
+
+1. Click on `house_rules` in the left panel
+2. In the **mode** field, type a mode like `review`, `triage`, or `release-notes` (plain text, not JSON)
+3. Click **"Get Prompt"**
+4. You should see your operating rules returned with the mode applied
+
+**Note**: The mode field is a free-form text input. Just type the mode name directly (e.g., `review`), not JSON syntax.
+
+### Step 5: Test the Tools
+
+Go to the **Tools** tab and select `git_context`:
+
+![MCP Inspector Tools](mcp_Tools_Screenshot.png)
+
+1. Click on `git_context` in the left panel
+2. Enter the **repoPath**: `/Users/sanjay/personalProjects/mcpHouseRules` (use an absolute path to any git repository)
+3. Set **maxCommits** to `15` (or any number 1-50)
+4. Click **"Run Tool"**
+5. You should see the repo context: branch name, recent commits, and diffstat
+
+### Verification Checklist
+
 - ✅ Prompts list includes `house_rules`
 - ✅ Tools list includes `git_context`
-- ✅ Calling `house_rules` returns your operating rules
+- ✅ Calling `house_rules` returns your operating rules with the mode applied
 - ✅ Calling `git_context` returns a compact repo context bundle
+
+### Troubleshooting
+
+**Server doesn't connect:**
+- Verify the path to `dist/index.js` is correct (use absolute path)
+- Make sure you've built the project: `npm run build`
+- Check that no other process is using the server
+
+**Prompt returns an error:**
+- Make sure the mode field contains plain text (e.g., `review`), not JSON
+- The mode is optional; leaving it empty defaults to `general`
+
+**Tool returns "Not a git repository":**
+- Verify the `repoPath` is an absolute path to a valid git repository
+- The directory must contain a `.git` folder
 
 ## Integration with MCP Clients
 

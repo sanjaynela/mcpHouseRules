@@ -82,7 +82,10 @@ server.setRequestHandler(GetPromptRequestSchema, async (request) => {
     messages: [
       {
         role: "user",
-        content: [{ type: "text", text }],
+        content: {
+          type: "text",
+          text: text,
+        },
       },
     ],
   };
