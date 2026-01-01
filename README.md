@@ -215,6 +215,97 @@ Once integrated, your workflow becomes:
 - ✅ You're not answering "what branch is this"
 - ✅ The assistant starts from a compact, consistent context bundle
 
+## Understanding Prompts vs Tools
+
+This MCP server exposes both **prompts** and **tools**, which work differently in the MCP protocol:
+
+### Prompts (house_rules)
+
+**What they are:**
+- Reusable conversation templates that set context and behavior
+- Discovered by the client and applied automatically
+- Not directly callable as functions
+
+**How they work:**
+- The client (Cursor, VS Code, etc.) discovers available prompts
+- When you reference a prompt, the client retrieves it and applies it to the conversation
+- The prompt content becomes part of the conversation context
+
+**How to verify it's working:**
+1. **In MCP Inspector:**
+   - Go to the "Prompts" tab
+   - You should see `house_rules` listed
+   - Click "Get Prompt" to see the prompt content
+   - ✅ If you see the prompt content, it's discoverable and working
+
+2. **In Cursor:**
+   - After adding to `mcp.json` and restarting, go to Settings → Tools & MCP
+   - Check that "house-rules" shows "1 prompt" available
+   - ✅ If the prompt count is correct, it's discoverable
+   - The prompt will be applied automatically when the client uses it
+
+**Note:** Prompts are not callable as tools. They're templates that the client uses to set conversation context.
+
+### Tools (git_context)
+
+**What they are:**
+- Executable functions that perform actions
+- Directly callable by the AI assistant
+- Return data or perform operations
+
+**How they work:**
+- The assistant can call tools directly using their names
+- Tools execute and return results
+- Results are used in the conversation
+
+**How to verify it's working:**
+1. **In MCP Inspector:**
+   - Go to the "Tools" tab
+   - You should see `git_context` listed
+   - Enter a repo path and click "Run Tool"
+   - ✅ If you get repo context back, the tool is functional
+
+2. **In Cursor:**
+   - After adding to `mcp.json` and restarting, go to Settings → Tools & MCP
+   - Check that "house-rules" shows "1 tool" available
+   - ✅ If the tool count is correct, it's discoverable
+   - Try: "Use git_context to get context for /path/to/repo"
+   - ✅ If the assistant successfully calls it and returns data, it's working
+
+### Verification Checklist
+
+**Server Connection:**
+- ✅ Server appears in Cursor's Tools & MCP settings
+- ✅ Shows correct version (0.1.0)
+- ✅ Status is "Connected"
+
+**Prompt Verification:**
+- ✅ `house_rules` appears in MCP Inspector's Prompts tab
+- ✅ Can retrieve prompt content in MCP Inspector
+- ✅ Cursor shows "1 prompt" for house-rules server
+
+**Tool Verification:**
+- ✅ `git_context` appears in MCP Inspector's Tools tab
+- ✅ Can successfully run `git_context` in MCP Inspector
+- ✅ Cursor shows "1 tool" for house-rules server
+- ✅ Assistant can call `git_context` and get results
+
+### Common Confusion
+
+**"Why can't I call house_rules as a tool?"**
+- Prompts are not tools. They're templates that the client applies to conversations.
+- The client discovers prompts and uses them to set context, not as executable functions.
+
+**"How do I use the house_rules prompt then?"**
+- In Cursor, the client will discover and apply it automatically when relevant
+- You can reference it in conversation: "Apply house_rules in review mode"
+- The client retrieves the prompt and applies it to the conversation context
+
+**"How do I know if prompts are working?"**
+- Check that they're discoverable (appear in MCP Inspector and Cursor settings)
+- The client applies them automatically - you'll notice the assistant following the rules
+- Tools are easier to verify because you can call them directly and see results
+
 ## Common Pitfalls
 
 ### 1. Logging to stdout breaks everything
